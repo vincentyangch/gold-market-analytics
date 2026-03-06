@@ -47,5 +47,5 @@ async function fetchMacroData(): Promise<MacroData> {
 export const getMacroData = unstable_cache(
   fetchMacroData,
   ["fred-macro-data"],
-  { revalidate: 86400 } // 24 hours
+  { revalidate: 1800 } // 30 minutes
 );

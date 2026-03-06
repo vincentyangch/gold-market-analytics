@@ -33,7 +33,7 @@ async function fetchQuotes(): Promise<Quote[]> {
 }
 
 export const getQuotes = unstable_cache(fetchQuotes, ["market-quotes"], {
-  revalidate: 300, // 5 minutes
+  revalidate: 60, // 1 minute
 });
 
 async function fetchHistory(
@@ -62,5 +62,5 @@ async function fetchHistory(
 export const getHistory = unstable_cache(
   fetchHistory,
   ["market-history"],
-  { revalidate: 3600 } // 1 hour
+  { revalidate: 600 } // 10 minutes
 );
