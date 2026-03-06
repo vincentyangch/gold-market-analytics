@@ -1,10 +1,18 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useTheme } from "next-themes";
 import { useHistory } from "@/lib/hooks/useMarketData";
 import type { Timeframe } from "@/lib/types";
 
 const TIMEFRAMES: Timeframe[] = ["1D", "1W", "1M", "3M", "1Y", "5Y"];
+
+/** Read a CSS variable's computed value from :root */
+function getCssVar(name: string): string {
+  return getComputedStyle(document.documentElement)
+    .getPropertyValue(name)
+    .trim();
+}
 
 interface PriceChartProps {
   defaultSymbol?: string;
@@ -16,6 +24,7 @@ export function PriceChart({ defaultSymbol = "GC=F" }: PriceChartProps) {
   const [symbol, setSymbol] = useState(defaultSymbol);
   const [timeframe, setTimeframe] = useState<Timeframe>("3M");
   const { data } = useHistory(symbol, timeframe);
+  const { resolvedTheme } = useTheme();
 
   useEffect(() => {
     if (!chartContainerRef.current || !data?.history?.length) return;
@@ -28,29 +37,43 @@ export function PriceChart({ defaultSymbol = "GC=F" }: PriceChartProps) {
         chartRef.current = null;
       }
 
+      // Resolve CSS variables to actual color strings
+      const bullish = getCssVar("--bullish") || "#22c55e";
+      const bearish = getCssVar("--bearish") || "#ef4444";
+      const bgColor = getCssVar("--card") || "#ffffff";
+      const textColor = getCssVar("--foreground") || "#1a202c";
+      const gridColor = getCssVar("--border") || "#e2e8f0";
+
       const chart = createChart(chartContainerRef.current!, {
         layout: {
-          background: { color: "transparent" },
-          textColor: "var(--foreground)",
+          background: { color: bgColor },
+          textColor: textColor,
         },
         grid: {
-          vertLines: { color: "var(--border)" },
-          horzLines: { color: "var(--border)" },
+          vertLines: { color: gridColor },
+          horzLines: { color: gridColor },
         },
         width: chartContainerRef.current!.clientWidth,
         height: 400,
         timeScale: {
-          borderColor: "var(--border)",
+          borderColor: gridColor,
+        },
+        rightPriceScale: {
+          borderColor: gridColor,
+        },
+        crosshair: {
+          vertLine: { color: textColor, labelBackgroundColor: bullish },
+          horzLine: { color: textColor, labelBackgroundColor: bullish },
         },
       });
 
       const candlestickSeries = chart.addSeries(CandlestickSeries, {
-        upColor: "var(--bullish)",
-        downColor: "var(--bearish)",
-        borderUpColor: "var(--bullish)",
-        borderDownColor: "var(--bearish)",
-        wickUpColor: "var(--bullish)",
-        wickDownColor: "var(--bearish)",
+        upColor: bullish,
+        downColor: bearish,
+        borderUpColor: bullish,
+        borderDownColor: bearish,
+        wickUpColor: bullish,
+        wickDownColor: bearish,
       });
 
       const chartData = data.history.map((d) => ({
@@ -83,7 +106,7 @@ export function PriceChart({ defaultSymbol = "GC=F" }: PriceChartProps) {
         chartRef.current = null;
       }
     };
-  }, [data]);
+  }, [data, resolvedTheme]);
 
   return (
     <div className="bg-card border border-card-border rounded-lg p-4">

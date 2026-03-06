@@ -1,4 +1,3 @@
-import Anthropic from "@anthropic-ai/sdk";
 import type { CompositeSignal, DataSnapshot, MarketReport } from "@/lib/types";
 
 const SYSTEM_PROMPT = `You are a precious metals market analyst. Analyze the provided market data and factor signals.
@@ -20,7 +19,17 @@ export function buildReportPrompt(
     )
     .join("\n");
 
-  return `Market Data Snapshot:
+  return `You are a precious metals market analyst. Analyze the data below and respond with ONLY a JSON object (no markdown, no explanation, no text before or after the JSON).
+
+The JSON must have exactly these fields:
+{
+  "summary": "2-3 sentence executive summary",
+  "factorAnalysis": "paragraph analyzing each factor's contribution",
+  "outlook": "1-2 week outlook based on the data",
+  "keyRisks": ["risk 1", "risk 2", "risk 3"]
+}
+
+Market Data Snapshot:
 - Gold: $${snapshot.goldPrice.toFixed(2)}
 - Silver: $${snapshot.silverPrice.toFixed(2)}
 - VIX: ${snapshot.vix.toFixed(1)}
@@ -32,27 +41,49 @@ Composite Signal: ${signal.direction} (score: ${signal.score.toFixed(3)}, confid
 Factor Breakdown:
 ${factorLines}
 
-Generate your analysis.`;
+Respond with ONLY the JSON object.`;
 }
 
 export async function generateReport(
   signal: CompositeSignal,
   snapshot: DataSnapshot
 ): Promise<MarketReport> {
-  const client = new Anthropic();
+  const baseURL = process.env.OPENAI_BASE_URL || "https://529961.com";
+  const apiKey = process.env.OPENAI_API_KEY;
+  const model = process.env.OPENAI_MODEL || "gpt-5.4";
 
-  const response = await client.messages.create({
-    model: "claude-sonnet-4-6",
-    max_tokens: 1024,
-    system: SYSTEM_PROMPT,
-    messages: [
-      { role: "user", content: buildReportPrompt(signal, snapshot) },
-    ],
+  // Use the Responses API (/v1/responses) directly since the proxy
+  // does not support the legacy /v1/chat/completions endpoint.
+  const res = await fetch(`${baseURL}/v1/responses`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model,
+      instructions: SYSTEM_PROMPT,
+      input: [
+        { role: "user", content: buildReportPrompt(signal, snapshot) },
+      ],
+    }),
   });
 
-  const text =
-    response.content[0].type === "text" ? response.content[0].text : "";
-  const parsed = JSON.parse(text);
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`AI API error (${res.status}): ${err}`);
+  }
+
+  const data = await res.json();
+  // Responses API: output[0].content[0].text
+  const text = data.output?.[0]?.content?.[0]?.text ?? "";
+
+  // Strip markdown code fences if present, then extract JSON object
+  const cleaned = text.replace(/^```json?\n?/, "").replace(/\n?```$/, "").trim();
+  // Find the first { ... } block in case model added surrounding text
+  const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) throw new Error("No JSON found in AI response");
+  const parsed = JSON.parse(jsonMatch[0]);
 
   return {
     id: `report-${Date.now()}`,

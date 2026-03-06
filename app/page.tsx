@@ -31,28 +31,34 @@ export default function Dashboard() {
   const quotes = quotesData?.quotes ?? [];
 
   return (
-    <div className="space-y-6">
-      {/* Price cards */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-        {quotes.map((quote) => (
-          <PriceCard
-            key={quote.symbol}
-            quote={quote}
-            label={PRICE_LABELS[quote.symbol] ?? quote.symbol}
-          />
-        ))}
+    <div className="space-y-4">
+      {/* Row 1: Price cards + Trend Signal */}
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-4">
+        {/* Price cards */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+          {quotes.map((quote) => (
+            <PriceCard
+              key={quote.symbol}
+              quote={quote}
+              label={PRICE_LABELS[quote.symbol] ?? quote.symbol}
+            />
+          ))}
+        </div>
+        {/* Trend signal — prominent on the right */}
+        {signal && (
+          <div className="lg:w-56">
+            <TrendSignal signal={signal} />
+          </div>
+        )}
       </div>
 
-      {/* Trend signal */}
-      {signal && <TrendSignal signal={signal} />}
+      {/* Row 2: Chart + Factor Breakdown sidebar */}
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-4">
+        <PriceChart />
+        {signal && <FactorBreakdown factors={signal.factors} />}
+      </div>
 
-      {/* Factor breakdown */}
-      {signal && <FactorBreakdown factors={signal.factors} />}
-
-      {/* Price chart */}
-      <PriceChart />
-
-      {/* AI Report */}
+      {/* Row 3: AI Report */}
       <ReportCard report={report ?? null} />
     </div>
   );

@@ -1,6 +1,8 @@
-import yahooFinance from "yahoo-finance2";
+import YahooFinance from "yahoo-finance2";
 import { unstable_cache } from "next/cache";
 import type { Quote, OHLCV, Timeframe } from "@/lib/types";
+
+const yf = new YahooFinance();
 
 const SYMBOLS = ["GC=F", "SI=F", "DX-Y.NYB", "^VIX", "GLD"] as const;
 
@@ -15,7 +17,7 @@ const TIMEFRAME_DAYS: Record<Timeframe, number> = {
 
 async function fetchQuotes(): Promise<Quote[]> {
   const quotes = await Promise.all(
-    SYMBOLS.map((symbol) => (yahooFinance as any).quote(symbol))
+    SYMBOLS.map((symbol) => yf.quote(symbol))
   );
 
   return quotes.map((q: any) => ({
@@ -42,7 +44,7 @@ async function fetchHistory(
   const period1 = new Date();
   period1.setDate(period1.getDate() - days);
 
-  const results: any[] = await (yahooFinance as any).historical(symbol, {
+  const results: any[] = await yf.historical(symbol, {
     period1,
     period2: new Date(),
   });

@@ -12,29 +12,11 @@ export function FactorCard({ factor }: FactorCardProps) {
   const isPositive = factor.score >= 0;
 
   return (
-    <div className="bg-card border border-card-border rounded-lg p-4">
-      <div className="flex justify-between items-center mb-2">
-        <span className="text-sm font-medium text-foreground">
+    <div className="py-2 border-b border-border last:border-b-0">
+      <div className="flex justify-between items-center mb-1.5">
+        <span className="text-xs font-medium text-foreground">
           {factor.name}
         </span>
-        <span className="text-xs text-secondary">
-          {(factor.weight * 100).toFixed(0)}% weight
-        </span>
-      </div>
-      {/* Score bar */}
-      <div className="relative h-2 bg-border rounded-full mb-2">
-        {/* Center line */}
-        <div className="absolute left-1/2 top-0 w-px h-full bg-secondary/50" />
-        {/* Score indicator */}
-        <div
-          className={`absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full ${
-            isPositive ? "bg-bullish" : "bg-bearish"
-          }`}
-          style={{ left: `calc(${barPosition}% - 6px)` }}
-        />
-      </div>
-      <div className="flex justify-between items-center">
-        <span className="text-xs text-secondary">{factor.reasoning}</span>
         <span
           className={`text-xs font-mono font-bold ${
             isPositive ? "text-bullish" : "text-bearish"
@@ -43,6 +25,21 @@ export function FactorCard({ factor }: FactorCardProps) {
           {factor.score > 0 ? "+" : ""}
           {factor.score.toFixed(2)}
         </span>
+      </div>
+      {/* Score bar */}
+      <div className="relative h-1.5 bg-border rounded-full">
+        {/* Center line */}
+        <div className="absolute left-1/2 top-0 w-px h-full bg-secondary/50" />
+        {/* Score indicator */}
+        <div
+          className={`absolute top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full ${
+            isPositive ? "bg-bullish" : "bg-bearish"
+          }`}
+          style={{ left: `calc(${barPosition}% - 5px)` }}
+        />
+      </div>
+      <div className="mt-1 text-[10px] text-secondary leading-tight truncate">
+        {factor.reasoning}
       </div>
     </div>
   );

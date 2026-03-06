@@ -20,18 +20,18 @@
   }
 
   [data-theme="dark"] {
-    --background: #0f1117;
-    --surface: #1a1d27;
-    --border: #2d3141;
-    --foreground: #e2e8f0;
+    --background: #0b0d11;
+    --surface: #151821;
+    --border: #1f2433;
+    --foreground: #e8ecf1;
     --primary: #f5c842;
-    --secondary: #94a3b8;
-    --hover: #252836;
-    --bullish: #22c55e;
-    --bearish: #ef4444;
+    --secondary: #8895a7;
+    --hover: #1c2030;
+    --bullish: #26d962;
+    --bearish: #f5404a;
     --neutral: #9ca3af;
-    --card: #1e2130;
-    --card-border: #2d3141;
+    --card: #131620;
+    --card-border: #1f2433;
   }
 }
 
