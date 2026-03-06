@@ -15,7 +15,7 @@ const TIMEFRAME_DAYS: Record<Timeframe, number> = {
 
 async function fetchQuotes(): Promise<Quote[]> {
   const quotes = await Promise.all(
-    SYMBOLS.map((symbol) => yahooFinance.quote(symbol))
+    SYMBOLS.map((symbol) => (yahooFinance as any).quote(symbol))
   );
 
   return quotes.map((q: any) => ({
@@ -42,7 +42,7 @@ async function fetchHistory(
   const period1 = new Date();
   period1.setDate(period1.getDate() - days);
 
-  const results = await yahooFinance.historical(symbol, {
+  const results: any[] = await (yahooFinance as any).historical(symbol, {
     period1,
     period2: new Date(),
   });
