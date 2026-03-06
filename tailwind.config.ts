@@ -7,7 +7,22 @@ const config: Config = {
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        background: "var(--background)",
+        surface: "var(--surface)",
+        border: "var(--border)",
+        foreground: "var(--foreground)",
+        primary: "var(--primary)",
+        secondary: "var(--secondary)",
+        hover: "var(--hover)",
+        bullish: "var(--bullish)",
+        bearish: "var(--bearish)",
+        neutral: "var(--neutral)",
+        card: "var(--card)",
+        "card-border": "var(--card-border)",
+      },
+    },
   },
   plugins: [],
 };
