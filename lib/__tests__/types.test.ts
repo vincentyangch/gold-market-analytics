@@ -3,7 +3,6 @@ import type {
   Quote,
   FactorResult,
   CompositeSignal,
-  MarketReport,
 } from "../types";
 
 describe("types", () => {
