@@ -11,17 +11,6 @@ function ensureDir() {
 }
 
 export async function saveReport(report: MarketReport): Promise<string> {
-  if (process.env.BLOB_READ_WRITE_TOKEN) {
-    const { put } = await import("@vercel/blob");
-    const key = `reports/${report.generatedAt.split("T")[0]}.json`;
-    const blob = await put(key, JSON.stringify(report), {
-      access: "public",
-      contentType: "application/json",
-    });
-    return blob.url;
-  }
-
-  // Local file fallback
   ensureDir();
   const filename = `${report.generatedAt.split("T")[0]}.json`;
   const filepath = join(LOCAL_DIR, filename);
@@ -30,15 +19,6 @@ export async function saveReport(report: MarketReport): Promise<string> {
 }
 
 export async function getLatestReport(): Promise<MarketReport | null> {
-  if (process.env.BLOB_READ_WRITE_TOKEN) {
-    const { list } = await import("@vercel/blob");
-    const { blobs } = await list({ prefix: "reports/", limit: 1 });
-    if (blobs.length === 0) return null;
-    const res = await fetch(blobs[0].url);
-    return res.json();
-  }
-
-  // Local file fallback
   ensureDir();
   const files = readdirSync(LOCAL_DIR)
     .filter((f) => f.endsWith(".json"))
@@ -52,19 +32,6 @@ export async function getLatestReport(): Promise<MarketReport | null> {
 export async function getReportByDate(
   date: string
 ): Promise<MarketReport | null> {
-  if (process.env.BLOB_READ_WRITE_TOKEN) {
-    try {
-      const { head } = await import("@vercel/blob");
-      const blob = await head(`reports/${date}.json`);
-      if (!blob) return null;
-      const res = await fetch(blob.url);
-      return res.json();
-    } catch {
-      return null;
-    }
-  }
-
-  // Local file fallback
   try {
     const filepath = join(LOCAL_DIR, `${date}.json`);
     if (!existsSync(filepath)) return null;

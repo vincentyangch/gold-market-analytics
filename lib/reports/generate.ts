@@ -1,4 +1,5 @@
 import type { CompositeSignal, DataSnapshot, MarketReport } from "@/lib/types";
+import { createProvider } from "@/lib/ai/factory";
 
 const SYSTEM_PROMPT = `You are a precious metals market analyst. Analyze the provided market data and factor signals.
 Be concise and data-driven. Never speculate beyond what the data shows.
@@ -48,39 +49,12 @@ export async function generateReport(
   signal: CompositeSignal,
   snapshot: DataSnapshot
 ): Promise<MarketReport> {
-  const baseURL = process.env.OPENAI_BASE_URL || "https://529961.com";
-  const apiKey = process.env.OPENAI_API_KEY;
-  const model = process.env.OPENAI_MODEL || "gpt-5.4";
-
-  // Use the Responses API (/v1/responses) directly since the proxy
-  // does not support the legacy /v1/chat/completions endpoint.
-  const res = await fetch(`${baseURL}/v1/responses`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model,
-      instructions: SYSTEM_PROMPT,
-      input: [
-        { role: "user", content: buildReportPrompt(signal, snapshot) },
-      ],
-    }),
-  });
-
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`AI API error (${res.status}): ${err}`);
-  }
-
-  const data = await res.json();
-  // Responses API: output[0].content[0].text
-  const text = data.output?.[0]?.content?.[0]?.text ?? "";
+  const provider = createProvider();
+  const userPrompt = buildReportPrompt(signal, snapshot);
+  const text = await provider.generateCompletion(SYSTEM_PROMPT, userPrompt);
 
   // Strip markdown code fences if present, then extract JSON object
   const cleaned = text.replace(/^```json?\n?/, "").replace(/\n?```$/, "").trim();
-  // Find the first { ... } block in case model added surrounding text
   const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
   if (!jsonMatch) throw new Error("No JSON found in AI response");
   const parsed = JSON.parse(jsonMatch[0]);
