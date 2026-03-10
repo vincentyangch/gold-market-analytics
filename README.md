@@ -26,6 +26,11 @@ Gold Market Analytics combines real-time market data, a multi-factor signal engi
 - **Dark / Light theme** — Automatic system detection with manual toggle
 - **Auto-refresh** — Dashboard updates every 60s with last-updated indicator
 
+https://gold.ai-webapp.com/
+
+<img width="1256" height="750" alt="Screenshot 2026-03-09 at 11 51 56 PM" src="https://github.com/user-attachments/assets/4464ca58-4265-466b-88f0-0a224bccf45a" />
+<img width="1242" height="641" alt="Screenshot 2026-03-09 at 11 52 08 PM" src="https://github.com/user-attachments/assets/8b46f89c-760e-4225-9d68-cea3e691fe40" />
+
 ## Quick Start
 
 ### Prerequisites
