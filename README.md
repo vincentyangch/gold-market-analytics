@@ -176,6 +176,41 @@ To trigger report generation manually:
 curl -H "Authorization: Bearer $CRON_SECRET" http://localhost:3000/api/cron/generate-report
 ```
 
+#### Scheduling Daily Reports
+
+For automated daily report generation, set up a cron job to call the endpoint after US market close. Here are a few options:
+
+**System crontab (Linux/macOS):**
+
+```bash
+# Run at 10 PM ET (22:00) on weekdays
+0 22 * * 1-5 curl -s -H "Authorization: Bearer YOUR_CRON_SECRET" https://your-domain.com/api/cron/generate-report
+```
+
+**GitHub Actions:**
+
+```yaml
+# .github/workflows/daily-report.yml
+name: Daily Market Report
+on:
+  schedule:
+    - cron: '0 22 * * 1-5'   # 10 PM UTC, adjust for your timezone
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          curl -s -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            https://your-domain.com/api/cron/generate-report
+```
+
+**Other options:**
+- [cron-job.org](https://cron-job.org) — Free hosted cron service, no server required
+- Cloud scheduler services (AWS EventBridge, Google Cloud Scheduler)
+- PM2: `pm2 start cron.js` with a script that calls the endpoint on schedule
+
+> **Tip:** Schedule after US market close (4 PM ET / 22:00 UTC) for the most complete daily data. Avoid weekends — futures markets have limited hours and data may be stale.
+
 ## License
 
 MIT

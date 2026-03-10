@@ -176,6 +176,41 @@ lib/
 curl -H "Authorization: Bearer $CRON_SECRET" http://localhost:3000/api/cron/generate-report
 ```
 
+#### 定时生成每日报告
+
+可以设置定时任务，在美股收盘后自动调用接口生成报告。以下是几种方案：
+
+**系统 crontab（Linux/macOS）：**
+
+```bash
+# 工作日每天北京时间上午 6 点执行（对应美东时间下午 6 点）
+0 6 * * 2-6 curl -s -H "Authorization: Bearer YOUR_CRON_SECRET" https://your-domain.com/api/cron/generate-report
+```
+
+**GitHub Actions：**
+
+```yaml
+# .github/workflows/daily-report.yml
+name: Daily Market Report
+on:
+  schedule:
+    - cron: '0 22 * * 1-5'   # UTC 22:00，根据时区调整
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          curl -s -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            https://your-domain.com/api/cron/generate-report
+```
+
+**其他方案：**
+- [cron-job.org](https://cron-job.org) — 免费托管定时任务服务，无需服务器
+- 云调度服务（AWS EventBridge、Google Cloud Scheduler）
+- PM2：通过 `pm2 start cron.js` 运行定时调用脚本
+
+> **提示：** 建议在美股收盘后执行（美东时间下午 4 点 / UTC 22:00），以获取最完整的当日数据。避免在周末执行 —— 期货市场交易时间有限，数据可能不够及时。
+
 ## 许可证
 
 MIT
