@@ -26,6 +26,11 @@ Gold Market Analytics 将实时市场数据、多因子信号引擎与 AI 分析
 - **深色 / 浅色主题** — 自动检测系统偏好，支持手动切换
 - **自动刷新** — 仪表盘每 60 秒自动更新，显示最后更新时间
 
+https://gold.ai-webapp.com/
+
+<img width="1256" height="750" alt="Screenshot 2026-03-09 at 11 51 56 PM" src="https://github.com/user-attachments/assets/4464ca58-4265-466b-88f0-0a224bccf45a" />
+<img width="1242" height="641" alt="Screenshot 2026-03-09 at 11 52 08 PM" src="https://github.com/user-attachments/assets/8b46f89c-760e-4225-9d68-cea3e691fe40" />
+
 ## 快速开始
 
 ### 前置要求
